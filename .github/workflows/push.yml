@@ -70,6 +70,13 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: Setup Database
+        run: |
+          npx prisma generate
+          npx prisma db push
+        env:
+          DATABASE_URL: "file:./dev.db"
+
       - name: Run unit tests
         run: npm run test:unit
 
@@ -81,6 +88,8 @@ jobs:
 
       - name: Run all tests
         run: npm test
+        env:
+          DATABASE_URL: "file:./dev.db"
 
       # Codecov or Artifact upload can follow
 

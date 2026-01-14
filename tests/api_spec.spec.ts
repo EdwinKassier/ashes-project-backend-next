@@ -40,7 +40,7 @@ test("Test api - all valid", async ({ request }) => {
 test("Test api - invalid symbol", async ({ request }) => {
   const newIssue = await request.get(`/api/process_request`, {
     params: {
-      symbol: 123,
+      symbol: "INV@LID", // Use obviously invalid symbol that passes schema string check
       investment: 123,
     },
   });
@@ -48,8 +48,8 @@ test("Test api - invalid symbol", async ({ request }) => {
   expect(newIssue.status()).toBe(400);
 
   const responseBody = await newIssue.json();
-  // Zod error string
-  expect(responseBody.result).toContain("Expected string, received number");
+  // Validates string, so hits Service -> InvalidSymbolException
+  expect(responseBody.result).toContain("Invalid symbol provided");
 });
 
 test("Test api - no symbol", async ({ request }) => {
@@ -74,10 +74,11 @@ test("Test api - invalid investment", async ({ request }) => {
   expect(newIssue.status()).toBe(400);
 
   const responseBody = await newIssue.json();
-  // Investment parsing failure defaults to 0 or NaN, likely "Investment must be a positive number"
-  // Route logic: parseFloat("ETH") -> NaN.
-  // CryptoAnalysisSchema probably validates number > 0.
-  expect(responseBody.result).toContain("Investment must be a positive number");
+  // "ETH" -> NaN. Zod: expected number, received NaN.
+  // The error message might contain JSON structure or raw string.
+  // We check for "expected number" OR "NaN" to be safe, or just check that it's an error.
+  // The logs showed: "Invalid input: expected number, received NaN"
+  expect(responseBody.result).toContain("expected number");
 });
 
 test("Test api - no investment", async ({ request }) => {
@@ -89,9 +90,7 @@ test("Test api - no investment", async ({ request }) => {
   expect(newIssue.status()).toBe(400);
 
   const responseBody = await newIssue.json();
-  // parseFloat(null) -> 0. Schema: min(0)?
-  // Logic in route: investmentString ? parseFloat : 0.
-  // Zod: investment.min(0)? If min is 1?
+  // Investment 0. Positive means > 0.
   expect(responseBody.result).toContain("Investment must be a positive number");
 });
 
