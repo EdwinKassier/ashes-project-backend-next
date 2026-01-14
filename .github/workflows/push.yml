@@ -172,14 +172,14 @@ jobs:
       # Next.js specific: Prerender Build happens in Docker or here?
       # Our Dockerfile is multi-stage and handles build. We assume Docker build below.
 
-      - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v2'
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v2"
         with:
-          credentials_json: '${{ secrets.SA_KEY_JSON }}'
+          credentials_json: "${{ secrets.SA_KEY_JSON }}"
 
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v2"
 
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.RUN_REGION }}-docker.pkg.dev
