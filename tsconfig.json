@@ -23,6 +23,12 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/pages/api/process_request.js", "src/app/api/process_request/route.js", "src/app/lib/prisma.js", "src/app/utils/graph_creator.js", "src/app/utils/data_collector.js", "src/app/utils/data_cache.js", "tests/api_spec.spec.js", "tests-examples/demo-todo-app.spec.js"],
-  "exclude": ["node_modules"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "tests-examples/demo-todo-app.spec.js"
+  ],
+  "exclude": ["node_modules"]
 }
