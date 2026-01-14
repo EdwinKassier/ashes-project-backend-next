@@ -11,8 +11,6 @@ on:
       - main
       - master
   create:
-    tags:
-      - "prod/v*"
 
 env:
   PROJECT_ID: ${{ secrets.PROJECT_ID }}
@@ -174,18 +172,14 @@ jobs:
       # Next.js specific: Prerender Build happens in Docker or here?
       # Our Dockerfile is multi-stage and handles build. We assume Docker build below.
 
-      - name: Set up Google Cloud CLI
-        uses: google-github-actions/setup-gcloud@v2
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
         with:
-          service_account_key: ${{ secrets.SA_KEY_JSON }}
-          project_id: ${{ env.PROJECT_ID }}
-          export_default_credentials: true
+          credentials_json: '${{ secrets.SA_KEY_JSON }}'
 
-      - name: Authenticate to Google Cloud
-        run: |
-          echo '${{ secrets.SA_KEY_JSON }}' > /tmp/service-account-key.json
-          gcloud auth activate-service-account --key-file=/tmp/service-account-key.json
-          gcloud config set project ${{ env.PROJECT_ID }}
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
 
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.RUN_REGION }}-docker.pkg.dev
