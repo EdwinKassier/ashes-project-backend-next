@@ -34,7 +34,8 @@ test("Test api - all valid", async ({ request }) => {
   // Safe check: handle both if possible, or assume object
   const graphData = responseBody.graph_data;
   // If it's an array directly
-  expect(graphData.length).toBeGreaterThanOrEqual(1);
+  // It is now an object { points: [], color: "" }
+  expect(graphData.points.length).toBeGreaterThanOrEqual(1);
 });
 
 test("Test api - invalid symbol", async ({ request }) => {
