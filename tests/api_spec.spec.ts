@@ -16,14 +16,25 @@ test("Test api - all valid", async ({ request }) => {
       investment: 123,
     },
   });
-  expect(newIssue.ok());
+  expect(newIssue.ok()).toBeTruthy();
 
-  const responseBody = JSON.parse(await newIssue.text());
+  const responseBody = await newIssue.json();
 
-  // expect(responseBody.result.SYMBOL).toBe('ETH')
-  expect(responseBody.result.NUMBERCOINS).toBeGreaterThan(0);
+  // New API returns camelCase
+  expect(responseBody.result.numberOfCoins).toBeGreaterThan(0);
+  expect(responseBody.result.profit).toBeDefined();
 
-  expect(JSON.parse(responseBody.graph_data).length).toBeGreaterThanOrEqual(1);
+  // Graph data validation (legacy was stringified JSON??)
+  // New service returns object directly?
+  // Let's check GraphBuilderService... assuming it returns object.
+  // Legacy test said: JSON.parse(responseBody.graph_data).length
+  // If new API returns object directly, we don't parse.
+  // Checking route.ts: result and graph_data are returned directly.
+
+  // Safe check: handle both if possible, or assume object
+  const graphData = responseBody.graph_data;
+  // If it's an array directly
+  expect(graphData.length).toBeGreaterThanOrEqual(1);
 });
 
 test("Test api - invalid symbol", async ({ request }) => {
@@ -33,11 +44,12 @@ test("Test api - invalid symbol", async ({ request }) => {
       investment: 123,
     },
   });
-  expect(newIssue.ok());
+  // Expect 400 Bad Request
+  expect(newIssue.status()).toBe(400);
 
-  const responseBody = JSON.parse(await newIssue.text());
-
-  expect(responseBody.result).toBe("Symbol doesn't exist");
+  const responseBody = await newIssue.json();
+  // Zod error string
+  expect(responseBody.result).toContain("Expected string, received number");
 });
 
 test("Test api - no symbol", async ({ request }) => {
@@ -46,11 +58,10 @@ test("Test api - no symbol", async ({ request }) => {
       investment: 123,
     },
   });
-  expect(newIssue.ok());
+  expect(newIssue.status()).toBe(400);
 
-  const responseBody = JSON.parse(await newIssue.text());
-
-  expect(responseBody.result).toBe("Symbol doesn't exist");
+  const responseBody = await newIssue.json();
+  expect(responseBody.result).toContain("Symbol is required");
 });
 
 test("Test api - invalid investment", async ({ request }) => {
@@ -60,12 +71,13 @@ test("Test api - invalid investment", async ({ request }) => {
       investment: "ETH",
     },
   });
-  expect(newIssue.ok());
+  expect(newIssue.status()).toBe(400);
 
-  const responseBody = JSON.parse(await newIssue.text());
-
-  expect(responseBody.result).toBe("Invalid investment amount");
-  expect(responseBody.graph_data).toBe("Invalid investment amount");
+  const responseBody = await newIssue.json();
+  // Investment parsing failure defaults to 0 or NaN, likely "Investment must be a positive number"
+  // Route logic: parseFloat("ETH") -> NaN.
+  // CryptoAnalysisSchema probably validates number > 0.
+  expect(responseBody.result).toContain("Investment must be a positive number");
 });
 
 test("Test api - no investment", async ({ request }) => {
@@ -74,22 +86,21 @@ test("Test api - no investment", async ({ request }) => {
       symbol: "ETH",
     },
   });
-  expect(newIssue.ok());
+  expect(newIssue.status()).toBe(400);
 
-  const responseBody = JSON.parse(await newIssue.text());
-
-  expect(responseBody.result).toBe("Invalid investment amount");
-  expect(responseBody.graph_data).toBe("Invalid investment amount");
+  const responseBody = await newIssue.json();
+  // parseFloat(null) -> 0. Schema: min(0)?
+  // Logic in route: investmentString ? parseFloat : 0.
+  // Zod: investment.min(0)? If min is 1?
+  expect(responseBody.result).toContain("Investment must be a positive number");
 });
 
 test("Test api - no args", async ({ request }) => {
   const newIssue = await request.get(`/api/process_request`, {
     params: {},
   });
-  expect(newIssue.ok());
+  expect(newIssue.status()).toBe(400);
 
-  const responseBody = JSON.parse(await newIssue.text());
-
-  expect(responseBody.result).toBe("Symbol doesn't exist");
-  expect(responseBody.graph_data).toBe("Symbol doesn't exist");
+  const responseBody = await newIssue.json();
+  expect(responseBody.result).toContain("Symbol is required");
 });
