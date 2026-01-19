@@ -59,22 +59,22 @@ _\*Repository pattern implementation in progress via Prisma._
 ### Feature Details
 
 <details>
-<summary><b>🏗️ Architecture</b></summary>
+<summary><b>Architecture</b></summary>
 
-- ✅ **Domain-Driven Design**: Logic isolated in `src/domain`
-- ✅ **Service Layer**: Pure business logic classes (`CryptoAnalysisService`)
-- ✅ **Route Handlers**: Thin Next.js API routes handling only HTTP & Validation
-- ✅ **TypeScript**: Strict mode enabled with no `any` policies (mostly)
+- **Domain-Driven Design**: Logic isolated in `src/domain`
+- **Service Layer**: Pure business logic classes (`CryptoAnalysisService`)
+- **Route Handlers**: Thin Next.js API routes handling only HTTP & Validation
+- **TypeScript**: Strict mode enabled with no `any` policies (mostly)
 
 </details>
 
 <details>
-<summary><b>🧪 Testing & Quality</b></summary>
+<summary><b>Testing & Quality</b></summary>
 
-- ✅ **Unit Tests**: Jest tests for Domain Services
-- ✅ **Integration Tests**: API Route testing
-- ✅ **Pre-commit Hooks**: Husky + lint-staged
-- ✅ **CI Pipeline**: Automated build, test, and lint on push
+- **Unit Tests**: Jest tests for Domain Services
+- **Integration Tests**: API Route testing
+- **Pre-commit Hooks**: Husky + lint-staged
+- **CI Pipeline**: Automated build, test, and lint on push
 
 </details>
 
